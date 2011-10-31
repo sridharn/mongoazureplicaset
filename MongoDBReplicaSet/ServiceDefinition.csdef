@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="MongoDBReplicaSet" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+  <WorkerRole name="ReplicaSetRole" vmsize="Medium">
+    <Imports>
+    </Imports>
+    <Endpoints>
+      <InternalEndpoint name="MongodPort" protocol="tcp" port="27017" />
+    </Endpoints>
+    <ConfigurationSettings>
+      <Setting name="MongoDBDataDir" />
+      <Setting name="DiagnosticsConnectionString" />
+      <Setting name="ReplicaSetName" />
+    </ConfigurationSettings>
+    <LocalResources>
+      <LocalStorage name="MongoDBLocalDataDir" cleanOnRoleRecycle="false" sizeInMB="1024" />
+      <LocalStorage name="MongoDBLocalLogDir" cleanOnRoleRecycle="false" sizeInMB="1024" />
+      <LocalStorage name="MongoTraceDir" cleanOnRoleRecycle="false" sizeInMB="512" />
+    </LocalResources>
+  </WorkerRole>
+</ServiceDefinition>

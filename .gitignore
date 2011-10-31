@@ -1,0 +1,6 @@
+*.suo
+*.user
+ServiceConfiguration.Cloud.cscfg
+obj
+bin
+ServiceDefinition.build.csdef
