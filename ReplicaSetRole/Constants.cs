@@ -35,7 +35,9 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
         internal const string MongoBinaryFolder = @"approot\MongoDBBinaries";
         internal const string MongoLogFileName = "mongod.log";
-        internal const string MongodCommandLine = "--port {0} --dbpath {1} --logpath {2} --nohttpinterface --logappend --replSet {3} ";
+        internal const string MongodCommandLineCloud = "--port {0} --dbpath {1} --logpath {2} --nohttpinterface --logappend --replSet {3} ";
+        internal const string MongodCommandLineEmulated = "--port {0} --dbpath {1} --logpath {2} --replSet {3} ";
+
 
         internal const string TraceLogFileDir = "TraceLogFileDir";
         internal const string MongodDataBlobCacheDir = "MongodDataBlobCacheDir";
@@ -48,7 +50,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
         #endregion DO NOT MODIFY
 
         #region Configurable Section
-        internal const int MaxDBDriveSize = 5 * 1024; // in MB
+        internal const int MaxDBDriveSize = 1 * 1024;
         internal const int MaxLogDriveSize = 1024; // in MB
         internal const int MountSleep = 30 * 1000; // 30 seconds;
 

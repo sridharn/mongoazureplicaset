@@ -37,19 +37,18 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
         private Process mongodProcess = null;
         private CloudDrive mongoDataDrive = null;
         private CloudDrive mongoLogDrive = null;
-        private string mongoHost;
-        private int mongoPort;
-        private string mongoDataDriveLetter = null;
+        private string mongodHost;
+        private int mongodPort;
+        private string mongodDataDriveLetter = null;
         private string replicaSetName = null;
         private int instanceId;
 
         public override void Run() {
-            // This is a sample worker implementation. Replace with your logic.
             DiagnosticsHelper.TraceInformation("MongoWorkerRole run method called");
             var mongodRunning = CheckIfMongodRunning();
 
             while (mongodRunning) {
-                ReplicaSetHelper.ExecuteCloudCommandLocally(instanceId);
+                ReplicaSetHelper.RunCloudCommandLocally(instanceId, mongodPort);
                 Thread.Sleep(15000);
                 mongodRunning = CheckIfMongodRunning();
             }
@@ -77,7 +76,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 replicaSetName, instanceId));
 
             SetHostAndPort();
-            DiagnosticsHelper.TraceInformation(string.Format("Obtained host={0}, port={1}", mongoHost, mongoPort));
+            DiagnosticsHelper.TraceInformation(string.Format("Obtained host={0}, port={1}", mongodHost, mongodPort));
 
             StartMongoD();
 
@@ -90,7 +89,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             var commandSucceeded = false;
             while (!commandSucceeded) {
                 try {
-                    ReplicaSetHelper.ExecuteCloudCommandLocally(instanceId);
+                    ReplicaSetHelper.RunCloudCommandLocally(instanceId, mongodPort);
                     commandSucceeded = true;
                 } catch {
                     commandSucceeded = false;
@@ -98,8 +97,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 }
             }
 
-            if (!ReplicaSetHelper.ReplicaSetInitialized()) {
-                ReplicaSetHelper.RunInitializeCommandLocally(replicaSetName);
+            if (!ReplicaSetHelper.IsReplicaSetInitialized(mongodPort)) {
+                ReplicaSetHelper.RunInitializeCommandLocally(replicaSetName, mongodPort);
             }
 
             return base.OnStart();
@@ -155,12 +154,15 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
         private void SetHostAndPort() {
             var endPoint = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[MongoDBHelper.MongodPortKey].IPEndpoint;
-            mongoHost = endPoint.Address.ToString();
-            mongoPort = endPoint.Port;
+            mongodHost = endPoint.Address.ToString();
+            mongodPort = endPoint.Port;
+            if (RoleEnvironment.IsEmulated) {
+                mongodPort += instanceId;
+            }
         }
 
         private void ShutdownMongo() {
-            var server = MongoDBHelper.GetLocalConnection();
+            var server = MongoDBHelper.GetLocalConnection(mongodPort);
             server.Shutdown();
         }
 
@@ -174,11 +176,20 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
             var logFile = GetLogFile();
 
-            var cmdline = String.Format(Constants.MongodCommandLine,
-                mongoPort,
-                blobPath,
-                logFile,
-                replicaSetName);
+            string cmdline;
+            if (RoleEnvironment.IsEmulated) {
+                cmdline = String.Format(Constants.MongodCommandLineEmulated,
+                    mongodPort,
+                    blobPath,
+                    logFile,
+                    replicaSetName);
+            } else {
+                cmdline = String.Format(Constants.MongodCommandLineCloud,
+                    mongodPort,
+                    blobPath,
+                    logFile,
+                    replicaSetName);
+            }
 
             DiagnosticsHelper.TraceInformation(string.Format("Launching mongod as {0} {1}", mongodPath, cmdline));
 
@@ -202,15 +213,15 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             DiagnosticsHelper.TraceInformation("Getting db path");
             var dataBlobName = string.Format(Constants.MongodDataBlobName, instanceId);
             var containerName = string.Format(Constants.MongodDataBlobContainerName, replicaSetName);
-            mongoDataDriveLetter = Utilities.GetMountedPathFromBlob(
+            mongodDataDriveLetter = Utilities.GetMountedPathFromBlob(
                 Constants.MongoLocalDataDir,
                 Constants.MongoCloudDataDir,
                 containerName,
                 dataBlobName,
                 Constants.MaxDBDriveSize,
                 out mongoDataDrive);
-            DiagnosticsHelper.TraceInformation(string.Format("Obtained data drive as {0}", mongoDataDriveLetter));
-            var dir = Directory.CreateDirectory(Path.Combine(mongoDataDriveLetter, @"data"));
+            DiagnosticsHelper.TraceInformation(string.Format("Obtained data drive as {0}", mongodDataDriveLetter));
+            var dir = Directory.CreateDirectory(Path.Combine(mongodDataDriveLetter, @"data"));
             DiagnosticsHelper.TraceInformation(string.Format("Data directory is {0}", dir.FullName));
             return dir.FullName;
         }
@@ -227,7 +238,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 Constants.MaxLogDriveSize,
                 true,
                 mongoDataDrive,
-                mongoDataDriveLetter,
+                mongodDataDriveLetter,
                 out mongoLogDrive
                 );
             DiagnosticsHelper.TraceInformation(string.Format("Obtained log root directory as {0}", path));

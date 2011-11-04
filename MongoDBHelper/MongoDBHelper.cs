@@ -31,31 +31,22 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
         public const string MongodPortKey = "MongodPort";
         public const string MongoRoleName = "ReplicaSetRole";
 
-        internal static IPEndPoint GetLocalEndpoint() {
-            var currentRoleInstance = RoleEnvironment.CurrentRoleInstance;
-            var mongodEndpoint = currentRoleInstance.InstanceEndpoints[MongodPortKey].IPEndpoint;
-            return mongodEndpoint;
-        }
-
-        public static MongoServer GetLocalConnection() {
-            var mongodEndpoint = GetLocalEndpoint();
+        public static MongoServer GetLocalConnection(int port) {
             var connectionString = new StringBuilder();
             connectionString.Append("mongodb://");
-            connectionString.Append(string.Format("localhost:{0}",
-                mongodEndpoint.Port));
+            connectionString.Append(string.Format("localhost:{0}", port));
             var server = MongoServer.Create(connectionString.ToString());
             return server;
         }
 
-        public static MongoServer GetLocalSlaveOkConnection() {
-            var mongodEndpoint = GetLocalEndpoint();
+        public static MongoServer GetLocalSlaveOkConnection(int port) {
             var connectionString = new StringBuilder();
             connectionString.Append("mongodb://");
-            connectionString.Append(string.Format("localhost:{0}",
-                mongodEndpoint.Port));
+            connectionString.Append(string.Format("localhost:{0}",port));
             connectionString.Append("/?slaveOk=true");
             var server = MongoServer.Create(connectionString.ToString());
             return server;
         }
+
     }
 }

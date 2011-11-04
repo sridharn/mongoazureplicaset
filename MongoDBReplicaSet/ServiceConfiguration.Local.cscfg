@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="MongoDBReplicaSet" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="1" osVersion="*">
   <Role name="ReplicaSetRole">
-    <Instances count="1" />
+    <Instances count="3" />
     <ConfigurationSettings>
       <Setting name="MongoDBDataDir" value="UseDevelopmentStorage=true" />
       <Setting name="DiagnosticsConnectionString" value="UseDevelopmentStorage=true" />
