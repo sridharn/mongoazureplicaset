@@ -65,7 +65,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             var nodeDocument = new BsonDocument();
             foreach (var instance in RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances) {
                 var endpoint = instance.InstanceEndpoints[MongoDBHelper.MongodPortKey].IPEndpoint;
-                int instanceId = Utilities.ParseNodeInstanceId(instance.Id);
+                int instanceId = MongoDBHelper.ParseNodeInstanceId(instance.Id);
                 nodeDocument.Add(
                         string.Format(nodeName, instanceId),
                         string.Format(nodeAddress, endpoint.Address, 

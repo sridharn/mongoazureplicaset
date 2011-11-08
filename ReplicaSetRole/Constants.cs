@@ -46,7 +46,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
         internal const string TraceLogFile = "ReplicaSetWorkerTrace.log";
 
-        internal const string ReplicaSetNameSetting = "ReplicaSetName";
         #endregion DO NOT MODIFY
 
         #region Configurable Section

@@ -69,8 +69,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 configSetter(RoleEnvironment.GetConfigurationSettingValue(configName));
             });
 
-            replicaSetName = RoleEnvironment.GetConfigurationSettingValue(Constants.ReplicaSetNameSetting);
-            instanceId = Utilities.ParseNodeInstanceId(RoleEnvironment.CurrentRoleInstance.Id);
+            replicaSetName = RoleEnvironment.GetConfigurationSettingValue(MongoDBHelper.ReplicaSetNameSetting);
+            instanceId = MongoDBHelper.ParseNodeInstanceId(RoleEnvironment.CurrentRoleInstance.Id);
 
             DiagnosticsHelper.TraceInformation(string.Format("ReplicaSetName={0}, InstanceId={1}",
                 replicaSetName, instanceId));

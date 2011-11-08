@@ -23,6 +23,7 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
     using MongoDB.Driver;
 
     using System;
+    using System.Collections.Generic;
     using System.Net;
     using System.Text;
 
@@ -30,6 +31,7 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
 
         public const string MongodPortKey = "MongodPort";
         public const string MongoRoleName = "ReplicaSetRole";
+        public const string ReplicaSetNameSetting = "ReplicaSetName";
 
         public static MongoServer GetLocalConnection(int port) {
             var connectionString = new StringBuilder();
@@ -46,6 +48,41 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
             connectionString.Append("/?slaveOk=true");
             var server = MongoServer.Create(connectionString.ToString());
             return server;
+        }
+
+        public static MongoUrlBuilder GetReplicaSetConnectionUri() {
+            var connection = new MongoUrlBuilder(); 
+            // TODO - How do I get the rs name?
+            // var replicaSetName = RoleEnvironment.GetConfigurationSettingValue(ReplicaSetNameSetting);
+            var replicaSetName = "rs";
+            connection.ReplicaSetName = replicaSetName;
+            int replicaSetRoleCount = RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances.Count;
+            var servers = new List<MongoServerAddress>();
+            foreach (var instance in RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances) {
+                var endpoint = instance.InstanceEndpoints[MongoDBHelper.MongodPortKey].IPEndpoint;
+                int instanceId = ParseNodeInstanceId(instance.Id);
+                var server = new MongoServerAddress(
+                    endpoint.Address.ToString(),
+                    (RoleEnvironment.IsEmulated ? endpoint.Port + instanceId : endpoint.Port)
+                    );
+                servers.Add(server);
+            }
+            connection.Servers = servers;
+            return connection;
+        }
+
+        public static MongoServer GetReplicaSetConnection() {
+            return MongoServer.Create(GetReplicaSetConnectionUri().ToServerSettings());
+        }
+
+        public static int ParseNodeInstanceId(string id) {
+            int instanceIndex = 0;
+            if (RoleEnvironment.IsEmulated) {
+                int.TryParse(id.Substring(id.LastIndexOf("_") + 1), out instanceIndex);
+            } else {
+                int.TryParse(id.Substring(id.LastIndexOf(".") + 1), out instanceIndex);
+            }
+            return instanceIndex;
         }
 
     }

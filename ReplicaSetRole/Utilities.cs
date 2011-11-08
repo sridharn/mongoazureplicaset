@@ -26,16 +26,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
     internal static class Utilities {
 
-        internal static int ParseNodeInstanceId(string id) {
-            int instanceIndex = 0;
-            if (RoleEnvironment.IsEmulated) {
-                int.TryParse(id.Substring(id.LastIndexOf("_") + 1), out instanceIndex);
-            } else {
-                int.TryParse(id.Substring(id.LastIndexOf(".") + 1), out instanceIndex);
-            }
-            return instanceIndex;
-        }
-
         internal static string GetMountedPathFromBlob(
             string localCachePath,
             string cloudDir,
