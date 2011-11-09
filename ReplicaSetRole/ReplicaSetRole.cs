@@ -53,6 +53,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 mongodRunning = CheckIfMongodRunning();
             }
 
+            Thread.Sleep(60000);
+
             DiagnosticsHelper.TraceWarning("MongoWorkerRole run method exiting");
         }
 
@@ -80,27 +82,28 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
             StartMongoD();
 
-            var mongodStarted = false;
-            while (!mongodStarted) {
-                mongodStarted = CheckIfMongodRunning();
-                Thread.Sleep(1000);
-            }
+            DiagnosticsHelper.TraceInformation("Mongod process started");
 
             var commandSucceeded = false;
             while (!commandSucceeded) {
                 try {
                     ReplicaSetHelper.RunCloudCommandLocally(instanceId, mongodPort);
                     commandSucceeded = true;
-                } catch {
+                } catch (Exception e) {
+                    DiagnosticsHelper.TraceInformation(e.Message);
                     commandSucceeded = false;
                     Thread.Sleep(1000);
                 }
             }
 
+            DiagnosticsHelper.TraceInformation("Cloud command done on OnStart");
+
             if (!ReplicaSetHelper.IsReplicaSetInitialized(mongodPort)) {
                 ReplicaSetHelper.RunInitializeCommandLocally(replicaSetName, mongodPort);
+                DiagnosticsHelper.TraceInformation("RSInit issued");
             }
 
+            DiagnosticsHelper.TraceInformation("Done with OnStart");
             return base.OnStart();
         }
 
@@ -233,7 +236,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             var path = Utilities.GetMountedPathFromBlob(
                 Constants.MongoLocalLogDir,
                 Constants.MongoCloudLogDir,
-                Constants.MongodLogBlobContainerName,
+                containerName,
                 logBlobName,
                 Constants.MaxLogDriveSize,
                 true,

@@ -52,9 +52,8 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
 
         public static MongoUrlBuilder GetReplicaSetConnectionUri() {
             var connection = new MongoUrlBuilder(); 
-            // TODO - How do I get the rs name?
-            // var replicaSetName = RoleEnvironment.GetConfigurationSettingValue(ReplicaSetNameSetting);
-            var replicaSetName = "rs";
+            // TODO - Should only have 1 setting across both roles
+            var replicaSetName = RoleEnvironment.GetConfigurationSettingValue(ReplicaSetNameSetting);
             connection.ReplicaSetName = replicaSetName;
             int replicaSetRoleCount = RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances.Count;
             var servers = new List<MongoServerAddress>();
@@ -77,11 +76,7 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
 
         public static int ParseNodeInstanceId(string id) {
             int instanceIndex = 0;
-            if (RoleEnvironment.IsEmulated) {
-                int.TryParse(id.Substring(id.LastIndexOf("_") + 1), out instanceIndex);
-            } else {
-                int.TryParse(id.Substring(id.LastIndexOf(".") + 1), out instanceIndex);
-            }
+            int.TryParse(id.Substring(id.LastIndexOf("_") + 1), out instanceIndex);
             return instanceIndex;
         }
 

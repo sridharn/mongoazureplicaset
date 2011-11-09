@@ -28,6 +28,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
     internal class DiagnosticsHelper {
 
         private static TextWriter traceWriter = null;
+        private static string messageFormat = "Instance-{0}:{1}";
 
         static DiagnosticsHelper() {
             var diagObj = DiagnosticMonitor.GetDefaultInitialConfiguration();
@@ -65,18 +66,27 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
         }
 
         internal static void TraceInformation(string message) {
-            Trace.TraceInformation(message);
+            Trace.TraceInformation(string.Format(
+                messageFormat,
+                RoleEnvironment.CurrentRoleInstance.Id,
+                message));
             WriteTraceMessage(message, "INFORMATION");
         }
 
         internal static void TraceWarning(string message) {
-            Trace.TraceWarning(message);
+            Trace.TraceWarning(string.Format(
+                messageFormat,
+                RoleEnvironment.CurrentRoleInstance.Id,
+                message));
             WriteTraceMessage(message, "WARNING");
         }
 
         internal static void TraceError(string message) {
-            Trace.TraceError(message);
-            WriteTraceMessage(message, "ERRROR");
+            Trace.TraceError(string.Format(
+                messageFormat,
+                RoleEnvironment.CurrentRoleInstance.Id,
+                message));
+            WriteTraceMessage(message, "ERROR");
         }
 
         internal static void ShutdownDiagnostics() {
@@ -97,7 +107,11 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
         private static void WriteTraceMessage(string message, string type) {
             if (traceWriter != null) {
                 try {
-                    var messageString = string.Format("{0}-{1}-{2}", DateTime.UtcNow.ToString(), type, message);
+                    var messageString = string.Format("{0}-{1}-{2}-{3}", 
+                        RoleEnvironment.CurrentRoleInstance.Id,
+                        DateTime.UtcNow.ToString(), 
+                        type, 
+                        message);
                     traceWriter.WriteLine(messageString);
                     traceWriter.Flush();
                 } catch {

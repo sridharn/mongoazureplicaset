@@ -17,7 +17,10 @@
  */
 
 namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
+
     using System;
+
+    using Microsoft.WindowsAzure.ServiceRuntime;
 
     internal static class Constants {
         #region DO NOT MODIFY
@@ -30,7 +33,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
         internal const string MongoCloudLogDir = "MongoDBLogDir";
         internal const string MongoLocalDataDir = "MongoDBLocalDataDir";
         internal const string MongoLocalLogDir = "MongoDBLocalLogDir";
-
         internal const string MongoTraceDir = "MongoTraceDir";
 
         internal const string MongoBinaryFolder = @"approot\MongoDBBinaries";
@@ -49,13 +51,22 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
         #endregion DO NOT MODIFY
 
         #region Configurable Section
-        internal const int MaxDBDriveSize = 1 * 1024;
-        internal const int MaxLogDriveSize = 1024; // in MB
-        internal const int MountSleep = 30 * 1000; // 30 seconds;
+        internal static readonly int MaxDBDriveSize; // in MV
+        internal static readonly int MaxLogDriveSize; // in MB
 
-        internal static readonly TimeSpan DiagnosticTransferInterval = TimeSpan.FromMinutes(30);
+        internal static readonly TimeSpan DiagnosticTransferInterval = TimeSpan.FromMinutes(1);
         internal static readonly TimeSpan PerfCounterTransferInterval = TimeSpan.FromMinutes(15);
         #endregion Configurable Section
+
+        static Constants() {
+            if (RoleEnvironment.IsEmulated) {
+                MaxDBDriveSize = 1 * 1024;
+                MaxLogDriveSize = 1 * 1024;
+            } else {
+                MaxDBDriveSize = 1024 * 1024;
+                MaxLogDriveSize = 1024 * 1024;
+            }
+        }
 
     }
 }

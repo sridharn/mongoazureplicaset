@@ -31,5 +31,8 @@
     <Imports>
       <Import moduleName="Diagnostics" />
     </Imports>
+    <ConfigurationSettings>
+      <Setting name="ReplicaSetName" />
+    </ConfigurationSettings>
   </WebRole>
 </ServiceDefinition>

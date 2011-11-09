@@ -66,7 +66,10 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 }
             }
 
-            DiagnosticsHelper.TraceInformation(string.Format("In mounting cloud drive for dir {0}", cloudDir));
+            DiagnosticsHelper.TraceInformation(string.Format("In mounting cloud drive for dir {0} on {1} with {2}", 
+                cloudDir,
+                containerName,
+                blobName));
 
             CloudStorageAccount storageAccount = null;
 
