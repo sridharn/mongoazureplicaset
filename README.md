@@ -10,7 +10,17 @@
   * MongoDB C# driver v1.3. May need 1.4 (or 1.4-pre)
 
 ### Build
-  * Open MongoAzure.sln from Visual Studio 2010 and build
+  * Open MongoDBReplicaSet.sln from Visual Studio 2010 and build
+
+### Running on emulator
+  * Running locally on the emulator should work by default
+  * The default log and data dir sizes are 1GB
+
+### Deploying to Azure
+  * Create a cloud config (copy the local one)
+  * Edit settings on both the ReplicaSetRole and MvcMovie role to update storage
+    * The data dir should use http as the connection mechanism
+    * The diagnostics connection string should use https
 
 ## Maintainers
 * Sridhar Nanjundeswaran       sridhar@10gen.com
