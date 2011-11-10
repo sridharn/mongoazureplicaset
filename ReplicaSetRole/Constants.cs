@@ -16,13 +16,15 @@
  * limitations under the License.
  */
 
-namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
+namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
+{
 
     using System;
 
     using Microsoft.WindowsAzure.ServiceRuntime;
 
-    internal static class Constants {
+    internal static class Constants
+    {
         #region DO NOT MODIFY
         internal const string MongodDataBlobContainerName = "mongoddatadrive{0}";
         internal const string MongodDataBlobName = "mongoddblob{0}.vhd";
@@ -58,11 +60,15 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
         internal static readonly TimeSpan PerfCounterTransferInterval = TimeSpan.FromMinutes(15);
         #endregion Configurable Section
 
-        static Constants() {
-            if (RoleEnvironment.IsEmulated) {
+        static Constants()
+        {
+            if (RoleEnvironment.IsEmulated)
+            {
                 MaxDBDriveSize = 1 * 1024;
                 MaxLogDriveSize = 1 * 1024;
-            } else {
+            }
+            else
+            {
                 MaxDBDriveSize = 1024 * 1024;
                 MaxLogDriveSize = 1024 * 1024;
             }

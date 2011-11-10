@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
+namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
+{
 
     using Microsoft.WindowsAzure.Diagnostics;
     using Microsoft.WindowsAzure.ServiceRuntime;
@@ -25,12 +26,14 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
     using System.Diagnostics;
     using System.IO;
 
-    internal class DiagnosticsHelper {
+    internal class DiagnosticsHelper
+    {
 
         private static TextWriter traceWriter = null;
         private static string messageFormat = "Instance-{0}:{1}";
 
-        static DiagnosticsHelper() {
+        static DiagnosticsHelper()
+        {
             var diagObj = DiagnosticMonitor.GetDefaultInitialConfiguration();
             diagObj.Logs.ScheduledTransferPeriod = Constants.DiagnosticTransferInterval;
             AddPerfCounters(diagObj);
@@ -44,7 +47,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             TraceInformation(string.Format("Local log file is {0}", fileName));
         }
 
-        private static void AddPerfCounters(DiagnosticMonitorConfiguration diagObj) {
+        private static void AddPerfCounters(DiagnosticMonitorConfiguration diagObj)
+        {
             AddPerfCounter(diagObj, @"\LogicalDisk(*)\% Disk Read Time", 30);
             AddPerfCounter(diagObj, @"\LogicalDisk(*)\% Disk Write Time", 30);
             AddPerfCounter(diagObj, @"\LogicalDisk(*)\% Free Space", 30);
@@ -58,14 +62,16 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             AddPerfCounter(diagObj, @"\PhysicalDisk(*)\% Disk Write Time", 30);
         }
 
-        private static void AddPerfCounter(DiagnosticMonitorConfiguration config, string name, double seconds) {
+        private static void AddPerfCounter(DiagnosticMonitorConfiguration config, string name, double seconds)
+        {
             var perfmon = new PerformanceCounterConfiguration();
             perfmon.CounterSpecifier = name;
             perfmon.SampleRate = System.TimeSpan.FromSeconds(seconds);
             config.PerformanceCounters.DataSources.Add(perfmon);
         }
 
-        internal static void TraceInformation(string message) {
+        internal static void TraceInformation(string message)
+        {
             Trace.TraceInformation(string.Format(
                 messageFormat,
                 RoleEnvironment.CurrentRoleInstance.Id,
@@ -73,7 +79,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             WriteTraceMessage(message, "INFORMATION");
         }
 
-        internal static void TraceWarning(string message) {
+        internal static void TraceWarning(string message)
+        {
             Trace.TraceWarning(string.Format(
                 messageFormat,
                 RoleEnvironment.CurrentRoleInstance.Id,
@@ -81,7 +88,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             WriteTraceMessage(message, "WARNING");
         }
 
-        internal static void TraceError(string message) {
+        internal static void TraceError(string message)
+        {
             Trace.TraceError(string.Format(
                 messageFormat,
                 RoleEnvironment.CurrentRoleInstance.Id,
@@ -89,32 +97,43 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             WriteTraceMessage(message, "ERROR");
         }
 
-        internal static void ShutdownDiagnostics() {
+        internal static void ShutdownDiagnostics()
+        {
             ShutdownTrace();
         }
 
-        private static void ShutdownTrace() {
-            if (traceWriter != null) {
-                try {
+        private static void ShutdownTrace()
+        {
+            if (traceWriter != null)
+            {
+                try
+                {
                     traceWriter.Flush();
                     traceWriter.Close();
-                } catch {
+                }
+                catch
+                {
                     // ignore exceptions on close.
                 }
             }
         }
 
-        private static void WriteTraceMessage(string message, string type) {
-            if (traceWriter != null) {
-                try {
-                    var messageString = string.Format("{0}-{1}-{2}-{3}", 
+        private static void WriteTraceMessage(string message, string type)
+        {
+            if (traceWriter != null)
+            {
+                try
+                {
+                    var messageString = string.Format("{0}-{1}-{2}-{3}",
                         RoleEnvironment.CurrentRoleInstance.Id,
-                        DateTime.UtcNow.ToString(), 
-                        type, 
+                        DateTime.UtcNow.ToString(),
+                        type,
                         message);
                     traceWriter.WriteLine(messageString);
                     traceWriter.Flush();
-                } catch {
+                }
+                catch
+                {
                     // ignore trace message errors
                 }
             }

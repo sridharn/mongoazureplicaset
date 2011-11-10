@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
+namespace MongoDB.Azure.ReplicaSets.MongoDBHelper
+{
 
     using Microsoft.WindowsAzure.ServiceRuntime;
 
@@ -27,13 +28,15 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
     using System.Net;
     using System.Text;
 
-    public static class MongoDBHelper {
+    public static class MongoDBHelper
+    {
 
         public const string MongodPortKey = "MongodPort";
         public const string MongoRoleName = "ReplicaSetRole";
         public const string ReplicaSetNameSetting = "ReplicaSetName";
 
-        public static MongoServer GetLocalConnection(int port) {
+        public static MongoServer GetLocalConnection(int port)
+        {
             var connectionString = new StringBuilder();
             connectionString.Append("mongodb://");
             connectionString.Append(string.Format("localhost:{0}", port));
@@ -41,23 +44,26 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
             return server;
         }
 
-        public static MongoServer GetLocalSlaveOkConnection(int port) {
+        public static MongoServer GetLocalSlaveOkConnection(int port)
+        {
             var connectionString = new StringBuilder();
             connectionString.Append("mongodb://");
-            connectionString.Append(string.Format("localhost:{0}",port));
+            connectionString.Append(string.Format("localhost:{0}", port));
             connectionString.Append("/?slaveOk=true");
             var server = MongoServer.Create(connectionString.ToString());
             return server;
         }
 
-        public static MongoUrlBuilder GetReplicaSetConnectionUri() {
-            var connection = new MongoUrlBuilder(); 
+        public static MongoUrlBuilder GetReplicaSetConnectionUri()
+        {
+            var connection = new MongoUrlBuilder();
             // TODO - Should only have 1 setting across both roles
             var replicaSetName = RoleEnvironment.GetConfigurationSettingValue(ReplicaSetNameSetting);
             connection.ReplicaSetName = replicaSetName;
             int replicaSetRoleCount = RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances.Count;
             var servers = new List<MongoServerAddress>();
-            foreach (var instance in RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances) {
+            foreach (var instance in RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances)
+            {
                 var endpoint = instance.InstanceEndpoints[MongoDBHelper.MongodPortKey].IPEndpoint;
                 int instanceId = ParseNodeInstanceId(instance.Id);
                 var server = new MongoServerAddress(
@@ -70,11 +76,13 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper {
             return connection;
         }
 
-        public static MongoServer GetReplicaSetConnection() {
+        public static MongoServer GetReplicaSetConnection()
+        {
             return MongoServer.Create(GetReplicaSetConnectionUri().ToServerSettings());
         }
 
-        public static int ParseNodeInstanceId(string id) {
+        public static int ParseNodeInstanceId(string id)
+        {
             int instanceIndex = 0;
             int.TryParse(id.Substring(id.LastIndexOf("_") + 1), out instanceIndex);
             return instanceIndex;

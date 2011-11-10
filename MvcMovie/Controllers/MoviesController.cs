@@ -27,9 +27,12 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
-namespace MvcMovie.Controllers {
-    public class MoviesController : Controller {
-        private MongoCollection<Movie> GetMoviesCollection() {
+namespace MvcMovie.Controllers
+{
+    public class MoviesController : Controller
+    {
+        private MongoCollection<Movie> GetMoviesCollection()
+        {
             var server = MongoDBHelper.GetReplicaSetConnection();
             var database = server["movies"];
             var movieCollection = database.GetCollection<Movie>("movies");
@@ -39,7 +42,8 @@ namespace MvcMovie.Controllers {
         //
         // GET: /Movies/
 
-        public ViewResult Index() {
+        public ViewResult Index()
+        {
             var collection = GetMoviesCollection();
             var cursor = collection.FindAll();
             return View(cursor.ToList<Movie>());
@@ -48,7 +52,8 @@ namespace MvcMovie.Controllers {
         //
         // GET: /Movies/Details/5
 
-        public ViewResult Details(string id) {
+        public ViewResult Details(string id)
+        {
             var collection = GetMoviesCollection();
             var query = Query.EQ("_id", new ObjectId(id));
             var movie = collection.FindOne(query);
@@ -58,7 +63,8 @@ namespace MvcMovie.Controllers {
         //
         // GET: /Movies/Create
 
-        public ActionResult Create() {
+        public ActionResult Create()
+        {
             return View();
         }
 
@@ -66,8 +72,10 @@ namespace MvcMovie.Controllers {
         // POST: /Movies/Create
 
         [HttpPost]
-        public ActionResult Create(Movie movie) {
-            if (ModelState.IsValid) {
+        public ActionResult Create(Movie movie)
+        {
+            if (ModelState.IsValid)
+            {
                 var collection = GetMoviesCollection();
                 collection.Insert(movie);
                 return RedirectToAction("Index");
@@ -79,7 +87,8 @@ namespace MvcMovie.Controllers {
         //
         // GET: /Movies/Edit/5
 
-        public ActionResult Edit(string id) {
+        public ActionResult Edit(string id)
+        {
             var collection = GetMoviesCollection();
             var query = Query.EQ("_id", new ObjectId(id));
             var movie = collection.FindOne(query);
@@ -90,8 +99,10 @@ namespace MvcMovie.Controllers {
         // POST: /Movies/Edit/5
 
         [HttpPost]
-        public ActionResult Edit(Movie movie) {
-            if (ModelState.IsValid) {
+        public ActionResult Edit(Movie movie)
+        {
+            if (ModelState.IsValid)
+            {
                 var collection = GetMoviesCollection();
                 collection.Save(movie);
                 return RedirectToAction("Index");
@@ -102,7 +113,8 @@ namespace MvcMovie.Controllers {
         //
         // GET: /Movies/Delete/5
 
-        public ActionResult Delete(string id) {
+        public ActionResult Delete(string id)
+        {
             var collection = GetMoviesCollection();
             var query = Query.EQ("_id", new ObjectId(id));
             var movie = collection.FindOne(query);
@@ -113,21 +125,24 @@ namespace MvcMovie.Controllers {
         // POST: /Movies/Delete/5
 
         [HttpPost, ActionName("Delete")]
-        public ActionResult DeleteConfirmed(string id) {
+        public ActionResult DeleteConfirmed(string id)
+        {
             var collection = GetMoviesCollection();
             var query = Query.EQ("_id", new ObjectId(id));
             var result = collection.Remove(query);
             return RedirectToAction("Index");
         }
 
-        protected override void Dispose(bool disposing) {
+        protected override void Dispose(bool disposing)
+        {
             base.Dispose(disposing);
         }
 
         //
         // GET: /Movies/About
 
-        public ActionResult About() {
+        public ActionResult About()
+        {
             return View();
         }
 

@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
+namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
+{
 
     using Microsoft.WindowsAzure.ServiceRuntime;
 
@@ -26,20 +27,24 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
     using System;
 
-    internal static class ReplicaSetHelper {
+    internal static class ReplicaSetHelper
+    {
 
         private static int replicaSetRoleCount = 0;
         private static string nodeName = "#d{0}";
         private static string nodeAddress = "{0}:{1}";
 
-        static ReplicaSetHelper() {
+        static ReplicaSetHelper()
+        {
             //TODO - is this correct?
             replicaSetRoleCount = RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances.Count;
         }
 
-        internal static void RunInitializeCommandLocally(string rsName, int port) {
+        internal static void RunInitializeCommandLocally(string rsName, int port)
+        {
             var membersDocument = new BsonArray();
-            for (int i = 0; i < replicaSetRoleCount; i++) {
+            for (int i = 0; i < replicaSetRoleCount; i++)
+            {
                 membersDocument.Add(new BsonDocument {
                     {"_id", i},
                     {"host", string.Format(nodeName, i)}
@@ -53,22 +58,27 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 {"replSetInitiate", cfg}
             };
             var server = MongoDBHelper.GetLocalSlaveOkConnection(port);
-            try {
+            try
+            {
                 var result = server.RunAdminCommand(initCommand);
-            } catch {
+            }
+            catch
+            {
                 // TODO - need to do the right thing here
                 // for now do nothing to assume init went through
             }
         }
 
-        internal static void RunCloudCommandLocally(int myId, int port) {
+        internal static void RunCloudCommandLocally(int myId, int port)
+        {
             var nodeDocument = new BsonDocument();
-            foreach (var instance in RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances) {
+            foreach (var instance in RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances)
+            {
                 var endpoint = instance.InstanceEndpoints[MongoDBHelper.MongodPortKey].IPEndpoint;
                 int instanceId = MongoDBHelper.ParseNodeInstanceId(instance.Id);
                 nodeDocument.Add(
                         string.Format(nodeName, instanceId),
-                        string.Format(nodeAddress, endpoint.Address, 
+                        string.Format(nodeAddress, endpoint.Address,
                         RoleEnvironment.IsEmulated ? endpoint.Port + instanceId : endpoint.Port)
                 );
             }
@@ -86,23 +96,30 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
         }
 
-        internal static bool IsReplicaSetInitialized(int port) {
-            try {
+        internal static bool IsReplicaSetInitialized(int port)
+        {
+            try
+            {
                 var result = ReplicaSetGetStatus(port);
                 BsonValue startupStatus;
                 result.Response.TryGetValue("startupStatus", out startupStatus);
-                if (startupStatus != null) {
-                    if (startupStatus == 3) {
+                if (startupStatus != null)
+                {
+                    if (startupStatus == 3)
+                    {
                         return false;
                     }
                 }
                 return true;
-            } catch {
+            }
+            catch
+            {
                 return false;
             }
         }
 
-        private static CommandResult ReplicaSetGetStatus(int port) {
+        private static CommandResult ReplicaSetGetStatus(int port)
+        {
             var server = MongoDBHelper.GetLocalSlaveOkConnection(port);
             var result = server.RunAdminCommand("replSetGetStatus");
             return result;

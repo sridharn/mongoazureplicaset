@@ -16,7 +16,8 @@
  * limitations under the License.
  */
 
-namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
+namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
+{
 
     using Microsoft.WindowsAzure;
     using Microsoft.WindowsAzure.ServiceRuntime;
@@ -24,7 +25,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
     using System;
 
-    internal static class Utilities {
+    internal static class Utilities
+    {
 
         internal static string GetMountedPathFromBlob(
             string localCachePath,
@@ -32,17 +34,18 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             string containerName,
             string blobName,
             int driveSize,
-            out CloudDrive mongoDrive) {
-                return GetMountedPathFromBlob(
-                    localCachePath,
-                    cloudDir,
-                    containerName,
-                    blobName,
-                    driveSize,
-                    false,
-                    null,
-                    null,
-                    out mongoDrive);
+            out CloudDrive mongoDrive)
+        {
+            return GetMountedPathFromBlob(
+                localCachePath,
+                cloudDir,
+                containerName,
+                blobName,
+                driveSize,
+                false,
+                null,
+                null,
+                out mongoDrive);
         }
 
         internal static string GetMountedPathFromBlob(
@@ -54,35 +57,45 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             bool fallback,
             CloudDrive fallbackDrive,
             string fallbackDriverLetter,
-            out CloudDrive mongoDrive) {
+            out CloudDrive mongoDrive)
+        {
 
-            if (fallback) {
-                if (fallbackDrive == null) {
+            if (fallback)
+            {
+                if (fallbackDrive == null)
+                {
                     throw new ArgumentNullException("fallbackDrive");
                 }
 
-                if (string.IsNullOrEmpty(fallbackDriverLetter)) {
+                if (string.IsNullOrEmpty(fallbackDriverLetter))
+                {
                     throw new ArgumentNullException("fallbackDriveLetter");
                 }
             }
 
-            DiagnosticsHelper.TraceInformation(string.Format("In mounting cloud drive for dir {0} on {1} with {2}", 
+            DiagnosticsHelper.TraceInformation(string.Format("In mounting cloud drive for dir {0} on {1} with {2}",
                 cloudDir,
                 containerName,
                 blobName));
 
             CloudStorageAccount storageAccount = null;
 
-            if (fallback) {
-                try {
+            if (fallback)
+            {
+                try
+                {
                     storageAccount = CloudStorageAccount.FromConfigurationSetting(cloudDir);
-                } catch {
+                }
+                catch
+                {
                     // case for fallback to data dir for log also
                     DiagnosticsHelper.TraceInformation(string.Format("{0} is not found. using backup", cloudDir));
                     mongoDrive = fallbackDrive;
                     return fallbackDriverLetter;
                 }
-            } else {
+            }
+            else
+            {
                 storageAccount = CloudStorageAccount.FromConfigurationSetting(cloudDir);
             }
             var blobClient = storageAccount.CreateCloudBlobClient();
@@ -92,9 +105,12 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
             var driveContainer = blobClient.GetContainerReference(containerName);
 
             // create blob container (it has to exist before creating the cloud drive)
-            try {
+            try
+            {
                 driveContainer.CreateIfNotExist();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 DiagnosticsHelper.TraceInformation("Exception when creating container");
                 DiagnosticsHelper.TraceInformation(e.Message);
                 DiagnosticsHelper.TraceInformation(e.StackTrace);
@@ -105,9 +121,12 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
 
             // create the cloud drive
             mongoDrive = storageAccount.CreateCloudDrive(mongoBlobUri);
-            try {
+            try
+            {
                 mongoDrive.Create(driveSize);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 // exception is thrown if all is well but the drive already exists
                 DiagnosticsHelper.TraceInformation("Exception when creating cloud drive. safe to ignore");
                 DiagnosticsHelper.TraceInformation(e.Message);
@@ -122,7 +141,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 localStorage.MaximumSizeInMegabytes);
 
             // mount the drive and get the root path of the drive it's mounted as
-            try {
+            try
+            {
                 DiagnosticsHelper.TraceInformation(string.Format("Trying to mount blob as azure drive on {0}",
                     RoleEnvironment.CurrentRoleInstance.Id));
                 var driveLetter = mongoDrive.Mount(localStorage.MaximumSizeInMegabytes,
@@ -130,7 +150,9 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole {
                 DiagnosticsHelper.TraceInformation(string.Format("Write lock acquired on azure drive, mounted as {0}, on role instance",
                     driveLetter, RoleEnvironment.CurrentRoleInstance.Id));
                 return driveLetter;
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 DiagnosticsHelper.TraceWarning("could not acquire blob lock.");
                 DiagnosticsHelper.TraceWarning(e.Message);
                 DiagnosticsHelper.TraceWarning(e.StackTrace);
