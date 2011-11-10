@@ -23,17 +23,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MvcMovie")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("10gen inc.")]
 [assembly: AssemblyProduct("MvcMovie")]
-[assembly: AssemblyCopyright("Copyright © 10gen Inc. 2011")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("9c145923-3968-4892-8805-bad270dafc5f")]
-

@@ -26,17 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MongoDBHelper")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("10gen Inc.")]
 [assembly: AssemblyProduct("MongoDBHelper")]
-[assembly: AssemblyCopyright("Copyright © 10gen Inc. 2011")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d855235d-810b-46e8-8b59-cb17b9343536")]
-
