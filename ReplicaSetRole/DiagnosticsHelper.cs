@@ -35,14 +35,14 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         static DiagnosticsHelper()
         {
             var diagObj = DiagnosticMonitor.GetDefaultInitialConfiguration();
-            diagObj.Logs.ScheduledTransferPeriod = Constants.DiagnosticTransferInterval;
+            diagObj.Logs.ScheduledTransferPeriod = Settings.DiagnosticTransferInterval;
             AddPerfCounters(diagObj);
-            diagObj.PerformanceCounters.ScheduledTransferPeriod = Constants.PerfCounterTransferInterval;
+            diagObj.PerformanceCounters.ScheduledTransferPeriod = Settings.PerfCounterTransferInterval;
             diagObj.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
-            DiagnosticMonitor.Start(Constants.DiagnosticsConnectionString, diagObj);
+            DiagnosticMonitor.Start(Settings.DiagnosticsConnectionString, diagObj);
 
-            var localStorage = RoleEnvironment.GetLocalResource(Constants.MongoTraceDir);
-            var fileName = Path.Combine(localStorage.RootPath, Constants.TraceLogFile);
+            var localStorage = RoleEnvironment.GetLocalResource(Settings.MongoTraceDir);
+            var fileName = Path.Combine(localStorage.RootPath, Settings.TraceLogFile);
             traceWriter = new StreamWriter(fileName);
             TraceInformation(string.Format("Local log file is {0}", fileName));
         }

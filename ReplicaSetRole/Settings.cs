@@ -23,7 +23,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
 
     using Microsoft.WindowsAzure.ServiceRuntime;
 
-    internal static class Constants
+    internal static class Settings
     {
         #region DO NOT MODIFY
         internal const string MongodDataBlobContainerName = "mongoddatadrive{0}";
@@ -35,6 +35,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         internal const string MongoCloudLogDir = "MongoDBLogDir";
         internal const string MongoLocalDataDir = "MongoDBLocalDataDir";
         internal const string MongoLocalLogDir = "MongoDBLocalLogDir";
+        internal const string MongoDataDirSize = "MongoDataDirSize";
+        internal const string MongoLogDirSize = "MongoLogDirSize";
         internal const string MongoTraceDir = "MongoTraceDir";
 
         internal const string MongoBinaryFolder = @"approot\MongoDBBinaries";
@@ -50,28 +52,73 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
 
         internal const string TraceLogFile = "ReplicaSetWorkerTrace.log";
 
+        // Default drive sizes in MB
+        internal const int DefaultEmulatedDBDriveSize = 1024;
+        internal const int DefaultEmulatedLogDriveSize = 512;
+        internal const int DefaultDeployedDBDriveSize = 1024 * 1024;
+        internal const int DefaultDeployedLogDriveSize = 512 * 1024;
+
         #endregion DO NOT MODIFY
 
         #region Configurable Section
-        internal static readonly int MaxDBDriveSize; // in MV
+        internal static readonly int MaxDBDriveSize; // in MB
         internal static readonly int MaxLogDriveSize; // in MB
 
         internal static readonly TimeSpan DiagnosticTransferInterval = TimeSpan.FromMinutes(1);
         internal static readonly TimeSpan PerfCounterTransferInterval = TimeSpan.FromMinutes(15);
         #endregion Configurable Section
 
-        static Constants()
-        {
+        static Settings()
+        {           
             if (RoleEnvironment.IsEmulated)
             {
-                MaxDBDriveSize = 1 * 1024;
-                MaxLogDriveSize = 1 * 1024;
+                MaxDBDriveSize = DefaultEmulatedDBDriveSize;
+                MaxLogDriveSize = DefaultEmulatedLogDriveSize;
             }
             else
             {
-                MaxDBDriveSize = 1024 * 1024;
-                MaxLogDriveSize = 1024 * 1024;
+                MaxDBDriveSize = DefaultDeployedDBDriveSize;
+                MaxLogDriveSize = DefaultDeployedLogDriveSize;
             }
+
+            string mongoDataDirSize = null; 
+            try 
+            {
+                mongoDataDirSize = RoleEnvironment.GetConfigurationSettingValue(MongoDataDirSize);
+            }
+            catch (RoleEnvironmentException)
+            {
+                // setting does not exist use default
+            }
+            catch (Exception)
+            {
+                // setting does not exist?
+            }
+            
+            if (!string.IsNullOrEmpty(mongoDataDirSize))
+            {
+                int.TryParse(mongoDataDirSize, out MaxDBDriveSize);
+            }
+
+            string mongoLogDirSize = null;
+            try
+            {
+                mongoLogDirSize = RoleEnvironment.GetConfigurationSettingValue(MongoLogDirSize);
+            }
+            catch (RoleEnvironmentException)
+            {
+                // setting does not exist use default
+            }
+            catch (Exception)
+            {
+                // setting does not exist?
+            }
+
+            if (!string.IsNullOrEmpty(mongoLogDirSize))
+            {
+                int.TryParse(mongoLogDirSize, out MaxLogDriveSize);
+            }
+
         }
 
     }

@@ -36,7 +36,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
 
         static ReplicaSetHelper()
         {
-            //TODO - is this correct?
+            // Note : This does not account for replica set member changes
             replicaSetRoleCount = RoleEnvironment.Roles[MongoDBHelper.MongoRoleName].Instances.Count;
         }
 

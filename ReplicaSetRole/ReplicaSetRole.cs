@@ -200,7 +200,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         {
             var mongoAppRoot = Path.Combine(
                 Environment.GetEnvironmentVariable("RoleRoot") + @"\",
-                Constants.MongoBinaryFolder);
+                Settings.MongoBinaryFolder);
             var mongodPath = Path.Combine(mongoAppRoot, @"mongod.exe");
 
             var blobPath = GetMongoDataDirectory();
@@ -210,7 +210,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             string cmdline;
             if (RoleEnvironment.IsEmulated)
             {
-                cmdline = String.Format(Constants.MongodCommandLineEmulated,
+                cmdline = String.Format(Settings.MongodCommandLineEmulated,
                     mongodPort,
                     blobPath,
                     logFile,
@@ -218,7 +218,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             }
             else
             {
-                cmdline = String.Format(Constants.MongodCommandLineCloud,
+                cmdline = String.Format(Settings.MongodCommandLineCloud,
                     mongodPort,
                     blobPath,
                     logFile,
@@ -251,14 +251,14 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         private string GetMongoDataDirectory()
         {
             DiagnosticsHelper.TraceInformation("Getting db path");
-            var dataBlobName = string.Format(Constants.MongodDataBlobName, instanceId);
-            var containerName = string.Format(Constants.MongodDataBlobContainerName, replicaSetName);
+            var dataBlobName = string.Format(Settings.MongodDataBlobName, instanceId);
+            var containerName = string.Format(Settings.MongodDataBlobContainerName, replicaSetName);
             mongodDataDriveLetter = Utilities.GetMountedPathFromBlob(
-                Constants.MongoLocalDataDir,
-                Constants.MongoCloudDataDir,
+                Settings.MongoLocalDataDir,
+                Settings.MongoCloudDataDir,
                 containerName,
                 dataBlobName,
-                Constants.MaxDBDriveSize,
+                Settings.MaxDBDriveSize,
                 out mongoDataDrive);
             DiagnosticsHelper.TraceInformation(string.Format("Obtained data drive as {0}", mongodDataDriveLetter));
             var dir = Directory.CreateDirectory(Path.Combine(mongodDataDriveLetter, @"data"));
@@ -269,14 +269,14 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         private string GetLogFile()
         {
             DiagnosticsHelper.TraceInformation("Getting log file base path");
-            var logBlobName = string.Format(Constants.MongodLogBlobName, instanceId);
-            var containerName = string.Format(Constants.MongodLogBlobContainerName, replicaSetName);
+            var logBlobName = string.Format(Settings.MongodLogBlobName, instanceId);
+            var containerName = string.Format(Settings.MongodLogBlobContainerName, replicaSetName);
             var path = Utilities.GetMountedPathFromBlob(
-                Constants.MongoLocalLogDir,
-                Constants.MongoCloudLogDir,
+                Settings.MongoLocalLogDir,
+                Settings.MongoCloudLogDir,
                 containerName,
                 logBlobName,
-                Constants.MaxLogDriveSize,
+                Settings.MaxLogDriveSize,
                 true,
                 mongoDataDrive,
                 mongodDataDriveLetter,
@@ -284,14 +284,25 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
                 );
             DiagnosticsHelper.TraceInformation(string.Format("Obtained log root directory as {0}", path));
             var dir = Directory.CreateDirectory(Path.Combine(path, @"log"));
-            var logfile = Path.Combine(dir.FullName + @"\", Constants.MongoLogFileName);
+            var logfile = Path.Combine(dir.FullName + @"\", Settings.MongoLogFileName);
             return logfile;
         }
 
         private bool CheckIfMongodRunning()
         {
-            //TODO
             var processExited = mongodProcess.HasExited;
+            if (!processExited)
+            {
+                try
+                {
+                    var server = MongoDBHelper.GetLocalConnection(mongodPort);
+                    server.VerifyState();
+                }
+                catch
+                {
+                    processExited = true;
+                }
+            }
             return !processExited;
         }
 
