@@ -3,3 +3,5 @@
 obj
 bin
 ServiceDefinition.build.csdef
+ServiceConfiguration.Cloud.cscfg
+csx
