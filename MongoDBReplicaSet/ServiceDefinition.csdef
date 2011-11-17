@@ -8,8 +8,11 @@
     </Endpoints>
     <ConfigurationSettings>
       <Setting name="MongoDBDataDir" />
-      <Setting name="DiagnosticsConnectionString" />
       <Setting name="ReplicaSetName" />
+      <Setting name="MongoDBLogDir" />
+      <Setting name="MongoDBDataDirSize" />
+      <Setting name="MongoDBLogDirSize" />
+      <Setting name="DiagnosticsConnectionString" />
     </ConfigurationSettings>
     <LocalResources>
       <LocalStorage name="MongoDBLocalDataDir" cleanOnRoleRecycle="false" sizeInMB="1024" />

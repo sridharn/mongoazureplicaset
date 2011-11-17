@@ -81,6 +81,18 @@ namespace MongoDB.Azure.ReplicaSets.MongoDBHelper
             return MongoServer.Create(GetReplicaSetConnectionUri().ToServerSettings());
         }
 
+        public static MongoUrlBuilder GetSlaveOkReplicaSetConnectionUri()
+        {
+            var url = GetReplicaSetConnectionUri();
+            url.SlaveOk = true;
+            return url;
+        }
+
+        public static MongoServer GetSlaveOkReplicaSetConnection()
+        {
+            return MongoServer.Create(GetSlaveOkReplicaSetConnectionUri().ToServerSettings());
+        }
+
         public static int ParseNodeInstanceId(string id)
         {
             int instanceIndex = 0;

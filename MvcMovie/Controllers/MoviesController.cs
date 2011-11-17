@@ -33,6 +33,14 @@ namespace MvcMovie.Controllers
     {
         private MongoCollection<Movie> GetMoviesCollection()
         {
+            var server = MongoDBHelper.GetSlaveOkReplicaSetConnection();
+            var database = server["movies"];
+            var movieCollection = database.GetCollection<Movie>("movies");
+            return movieCollection;
+        }
+
+        private MongoCollection<Movie> GetMoviesCollectionForEdit()
+        {
             var server = MongoDBHelper.GetReplicaSetConnection();
             var database = server["movies"];
             var movieCollection = database.GetCollection<Movie>("movies");
@@ -76,7 +84,7 @@ namespace MvcMovie.Controllers
         {
             if (ModelState.IsValid)
             {
-                var collection = GetMoviesCollection();
+                var collection = GetMoviesCollectionForEdit();
                 collection.Insert(movie);
                 return RedirectToAction("Index");
             }
@@ -89,7 +97,7 @@ namespace MvcMovie.Controllers
 
         public ActionResult Edit(string id)
         {
-            var collection = GetMoviesCollection();
+            var collection = GetMoviesCollectionForEdit();
             var query = Query.EQ("_id", new ObjectId(id));
             var movie = collection.FindOne(query);
             return View(movie);
@@ -103,7 +111,7 @@ namespace MvcMovie.Controllers
         {
             if (ModelState.IsValid)
             {
-                var collection = GetMoviesCollection();
+                var collection = GetMoviesCollectionForEdit();
                 collection.Save(movie);
                 return RedirectToAction("Index");
             }
@@ -115,7 +123,7 @@ namespace MvcMovie.Controllers
 
         public ActionResult Delete(string id)
         {
-            var collection = GetMoviesCollection();
+            var collection = GetMoviesCollectionForEdit();
             var query = Query.EQ("_id", new ObjectId(id));
             var movie = collection.FindOne(query);
             return View(movie);
@@ -127,7 +135,7 @@ namespace MvcMovie.Controllers
         [HttpPost, ActionName("Delete")]
         public ActionResult DeleteConfirmed(string id)
         {
-            var collection = GetMoviesCollection();
+            var collection = GetMoviesCollectionForEdit();
             var query = Query.EQ("_id", new ObjectId(id));
             var result = collection.Remove(query);
             return RedirectToAction("Index");

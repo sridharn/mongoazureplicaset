@@ -29,8 +29,43 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
     internal class DiagnosticsHelper
     {
 
-        private static TextWriter traceWriter = null;
         private static string messageFormat = "Instance-{0}:{1}";
+
+        internal static void TraceInformation(string message)
+        {
+            try
+            {
+                Trace.TraceInformation(string.Format(
+                    messageFormat,
+                    RoleEnvironment.CurrentRoleInstance.Id,
+                    message));
+            }
+            catch { }
+        }
+
+        internal static void TraceWarning(string message)
+        {
+            try
+            {
+                Trace.TraceWarning(string.Format(
+                    messageFormat,
+                    RoleEnvironment.CurrentRoleInstance.Id,
+                    message));
+            }
+            catch { }
+        }
+
+        internal static void TraceError(string message)
+        {
+            try
+            {
+                Trace.TraceError(string.Format(
+                    messageFormat,
+                    RoleEnvironment.CurrentRoleInstance.Id,
+                    message));
+            }
+            catch { }
+        }
 
         static DiagnosticsHelper()
         {
@@ -42,9 +77,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             DiagnosticMonitor.Start(Settings.DiagnosticsConnectionString, diagObj);
 
             var localStorage = RoleEnvironment.GetLocalResource(Settings.MongoTraceDir);
-            var fileName = Path.Combine(localStorage.RootPath, Settings.TraceLogFile);
-            traceWriter = new StreamWriter(fileName);
-            TraceInformation(string.Format("Local log file is {0}", fileName));
         }
 
         private static void AddPerfCounters(DiagnosticMonitorConfiguration diagObj)
@@ -69,75 +101,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             perfmon.SampleRate = System.TimeSpan.FromSeconds(seconds);
             config.PerformanceCounters.DataSources.Add(perfmon);
         }
-
-        internal static void TraceInformation(string message)
-        {
-            Trace.TraceInformation(string.Format(
-                messageFormat,
-                RoleEnvironment.CurrentRoleInstance.Id,
-                message));
-            WriteTraceMessage(message, "INFORMATION");
-        }
-
-        internal static void TraceWarning(string message)
-        {
-            Trace.TraceWarning(string.Format(
-                messageFormat,
-                RoleEnvironment.CurrentRoleInstance.Id,
-                message));
-            WriteTraceMessage(message, "WARNING");
-        }
-
-        internal static void TraceError(string message)
-        {
-            Trace.TraceError(string.Format(
-                messageFormat,
-                RoleEnvironment.CurrentRoleInstance.Id,
-                message));
-            WriteTraceMessage(message, "ERROR");
-        }
-
-        internal static void ShutdownDiagnostics()
-        {
-            ShutdownTrace();
-        }
-
-        private static void ShutdownTrace()
-        {
-            if (traceWriter != null)
-            {
-                try
-                {
-                    traceWriter.Flush();
-                    traceWriter.Close();
-                }
-                catch
-                {
-                    // ignore exceptions on close.
-                }
-            }
-        }
-
-        private static void WriteTraceMessage(string message, string type)
-        {
-            if (traceWriter != null)
-            {
-                try
-                {
-                    var messageString = string.Format("{0}-{1}-{2}-{3}",
-                        RoleEnvironment.CurrentRoleInstance.Id,
-                        DateTime.UtcNow.ToString(),
-                        type,
-                        message);
-                    traceWriter.WriteLine(messageString);
-                    traceWriter.Flush();
-                }
-                catch
-                {
-                    // ignore trace message errors
-                }
-            }
-        }
-
+          
     }
 }

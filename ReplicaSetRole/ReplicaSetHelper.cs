@@ -118,6 +118,20 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             }
         }
 
+        internal static void StepdownIfNeeded(int port)
+        {
+            var server = MongoDBHelper.GetLocalConnection(port);
+            
+            if (server.Primary.IsPrimary)
+            {
+                var stepDownCommand = new CommandDocument {
+                    {"replSetStepDown", 1}
+                };
+
+                server.RunAdminCommand(stepDownCommand);
+            }
+        }
+
         private static CommandResult ReplicaSetGetStatus(int port)
         {
             var server = MongoDBHelper.GetLocalSlaveOkConnection(port);

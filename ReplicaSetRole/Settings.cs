@@ -38,6 +38,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         internal const string MongoDataDirSize = "MongoDataDirSize";
         internal const string MongoLogDirSize = "MongoLogDirSize";
         internal const string MongoTraceDir = "MongoTraceDir";
+        internal const string DiagnosticsConnectionString = "DiagnosticsConnectionString";
 
         internal const string MongoBinaryFolder = @"approot\MongoDBBinaries";
         internal const string MongoLogFileName = "mongod.log";
@@ -48,15 +49,14 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         internal const string TraceLogFileDir = "TraceLogFileDir";
         internal const string MongodDataBlobCacheDir = "MongodDataBlobCacheDir";
         internal const string MongodLogBlobCacheDir = "MongodLogBlobCacheDir";
-        internal const string DiagnosticsConnectionString = "DiagnosticsConnectionString";
 
         internal const string TraceLogFile = "ReplicaSetWorkerTrace.log";
 
-        // Default drive sizes in MB
-        internal const int DefaultEmulatedDBDriveSize = 1024;
-        internal const int DefaultEmulatedLogDriveSize = 512;
-        internal const int DefaultDeployedDBDriveSize = 1024 * 1024;
-        internal const int DefaultDeployedLogDriveSize = 512 * 1024;
+        // Default values for configurable settings
+        internal const int DefaultEmulatedDBDriveSize = 1024; // in MB
+        internal const int DefaultEmulatedLogDriveSize = 512; // in MB
+        internal const int DefaultDeployedDBDriveSize = 1024 * 1024; // in MB
+        internal const int DefaultDeployedLogDriveSize = 512 * 1024; // in MB
 
         #endregion DO NOT MODIFY
 
@@ -65,20 +65,22 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         internal static readonly int MaxLogDriveSize; // in MB
 
         internal static readonly TimeSpan DiagnosticTransferInterval = TimeSpan.FromMinutes(1);
-        internal static readonly TimeSpan PerfCounterTransferInterval = TimeSpan.FromMinutes(15);
+        internal static readonly TimeSpan PerfCounterTransferInterval = TimeSpan.FromMinutes(1);
         #endregion Configurable Section
 
         static Settings()
-        {           
+        {
+            int dbDriveSize;
+            int logDriveSize;
             if (RoleEnvironment.IsEmulated)
             {
-                MaxDBDriveSize = DefaultEmulatedDBDriveSize;
-                MaxLogDriveSize = DefaultEmulatedLogDriveSize;
+                dbDriveSize = DefaultEmulatedDBDriveSize;
+                logDriveSize = DefaultEmulatedLogDriveSize;
             }
             else
             {
-                MaxDBDriveSize = DefaultDeployedDBDriveSize;
-                MaxLogDriveSize = DefaultDeployedLogDriveSize;
+                dbDriveSize = DefaultDeployedDBDriveSize;
+                logDriveSize = DefaultDeployedLogDriveSize;
             }
 
             string mongoDataDirSize = null; 
@@ -94,11 +96,24 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             {
                 // setting does not exist?
             }
-            
+
             if (!string.IsNullOrEmpty(mongoDataDirSize))
             {
-                int.TryParse(mongoDataDirSize, out MaxDBDriveSize);
+                int parsedDBDriveSize = 0;
+                if (int.TryParse(mongoDataDirSize, out parsedDBDriveSize))
+                {
+                    MaxDBDriveSize = parsedDBDriveSize;
+                }
+                else
+                {
+                    MaxDBDriveSize = dbDriveSize;
+                }
             }
+            else
+            {
+                MaxDBDriveSize = dbDriveSize;
+            }
+
 
             string mongoLogDirSize = null;
             try
@@ -116,7 +131,19 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
 
             if (!string.IsNullOrEmpty(mongoLogDirSize))
             {
-                int.TryParse(mongoLogDirSize, out MaxLogDriveSize);
+                int parseLogDriveSize = 0;
+                if (int.TryParse(mongoLogDirSize, out parseLogDriveSize))
+                {
+                    MaxLogDriveSize = parseLogDriveSize;
+                }
+                else
+                {
+                    MaxLogDriveSize = logDriveSize;
+                }
+            }
+            else
+            {
+                MaxLogDriveSize = logDriveSize;
             }
 
         }

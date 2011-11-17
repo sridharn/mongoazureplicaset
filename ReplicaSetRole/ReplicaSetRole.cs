@@ -128,6 +128,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
                 if ((mongodProcess != null) &&
                     !(mongodProcess.HasExited))
                 {
+                    ReplicaSetHelper.StepdownIfNeeded(mongodPort);
                     ShutdownMongo();
                 }
                 DiagnosticsHelper.TraceInformation("Shutdown completed on mongod");
@@ -175,7 +176,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             }
 
             DiagnosticsHelper.TraceInformation("Calling diagnostics shutdown");
-            DiagnosticsHelper.ShutdownDiagnostics();
+            // DiagnosticsHelper.ShutdownDiagnostics();
             base.OnStop();
         }
 
@@ -291,18 +292,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         private bool CheckIfMongodRunning()
         {
             var processExited = mongodProcess.HasExited;
-            if (!processExited)
-            {
-                try
-                {
-                    var server = MongoDBHelper.GetLocalConnection(mongodPort);
-                    server.VerifyState();
-                }
-                catch
-                {
-                    processExited = true;
-                }
-            }
             return !processExited;
         }
 
