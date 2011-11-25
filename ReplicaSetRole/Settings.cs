@@ -37,7 +37,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         internal const string MongoLocalLogDir = "MongoDBLocalLogDir";
         internal const string MongoDataDirSize = "MongoDataDirSize";
         internal const string MongoLogDirSize = "MongoLogDirSize";
-        internal const string MongoTraceDir = "MongoTraceDir";
         internal const string DiagnosticsConnectionString = "DiagnosticsConnectionString";
 
         internal const string MongoBinaryFolder = @"approot\MongoDBBinaries";
@@ -45,12 +44,11 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         internal const string MongodCommandLineCloud = "--port {0} --dbpath {1} --logpath {2} --nohttpinterface --logappend --replSet {3} ";
         internal const string MongodCommandLineEmulated = "--port {0} --dbpath {1} --logpath {2} --replSet {3} ";
 
-
-        internal const string TraceLogFileDir = "TraceLogFileDir";
         internal const string MongodDataBlobCacheDir = "MongodDataBlobCacheDir";
         internal const string MongodLogBlobCacheDir = "MongodLogBlobCacheDir";
 
-        internal const string TraceLogFile = "ReplicaSetWorkerTrace.log";
+        internal static readonly int MaxDBDriveSize; // in MB
+        internal static readonly int MaxLogDriveSize; // in MB
 
         // Default values for configurable settings
         internal const int DefaultEmulatedDBDriveSize = 1024; // in MB
@@ -61,9 +59,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         #endregion DO NOT MODIFY
 
         #region Configurable Section
-        internal static readonly int MaxDBDriveSize; // in MB
-        internal static readonly int MaxLogDriveSize; // in MB
-
         internal static readonly TimeSpan DiagnosticTransferInterval = TimeSpan.FromMinutes(1);
         internal static readonly TimeSpan PerfCounterTransferInterval = TimeSpan.FromMinutes(1);
         #endregion Configurable Section

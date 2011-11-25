@@ -17,7 +17,6 @@
     <LocalResources>
       <LocalStorage name="MongoDBLocalDataDir" cleanOnRoleRecycle="false" sizeInMB="1024" />
       <LocalStorage name="MongoDBLocalLogDir" cleanOnRoleRecycle="false" sizeInMB="1024" />
-      <LocalStorage name="MongoTraceDir" cleanOnRoleRecycle="false" sizeInMB="512" />
     </LocalResources>
   </WorkerRole>
   <WebRole name="MvcMovie" vmsize="Small">

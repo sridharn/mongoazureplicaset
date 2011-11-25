@@ -75,8 +75,6 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             diagObj.PerformanceCounters.ScheduledTransferPeriod = Settings.PerfCounterTransferInterval;
             diagObj.Logs.ScheduledTransferLogLevelFilter = LogLevel.Verbose;
             DiagnosticMonitor.Start(Settings.DiagnosticsConnectionString, diagObj);
-
-            var localStorage = RoleEnvironment.GetLocalResource(Settings.MongoTraceDir);
         }
 
         private static void AddPerfCounters(DiagnosticMonitorConfiguration diagObj)
