@@ -36,68 +36,14 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             int driveSize,
             out CloudDrive mongoDrive)
         {
-            return GetMountedPathFromBlob(
-                localCachePath,
-                cloudDir,
-                containerName,
-                blobName,
-                driveSize,
-                false,
-                null,
-                null,
-                out mongoDrive);
-        }
-
-        internal static string GetMountedPathFromBlob(
-            string localCachePath,
-            string cloudDir,
-            string containerName,
-            string blobName,
-            int driveSize,
-            bool fallback,
-            CloudDrive fallbackDrive,
-            string fallbackDriverLetter,
-            out CloudDrive mongoDrive)
-        {
-
-            if (fallback)
-            {
-                if (fallbackDrive == null)
-                {
-                    throw new ArgumentNullException("fallbackDrive");
-                }
-
-                if (string.IsNullOrEmpty(fallbackDriverLetter))
-                {
-                    throw new ArgumentNullException("fallbackDriveLetter");
-                }
-            }
 
             DiagnosticsHelper.TraceInformation(string.Format("In mounting cloud drive for dir {0} on {1} with {2}",
                 cloudDir,
                 containerName,
                 blobName));
 
-            CloudStorageAccount storageAccount = null;
-
-            if (fallback)
-            {
-                try
-                {
-                    storageAccount = CloudStorageAccount.FromConfigurationSetting(cloudDir);
-                }
-                catch
-                {
-                    // case for fallback to data dir for log also
-                    DiagnosticsHelper.TraceInformation(string.Format("{0} is not found. using backup", cloudDir));
-                    mongoDrive = fallbackDrive;
-                    return fallbackDriverLetter;
-                }
-            }
-            else
-            {
-                storageAccount = CloudStorageAccount.FromConfigurationSetting(cloudDir);
-            }
+            CloudStorageAccount storageAccount = CloudStorageAccount.FromConfigurationSetting(cloudDir);
+            
             var blobClient = storageAccount.CreateCloudBlobClient();
 
             DiagnosticsHelper.TraceInformation("Get container");

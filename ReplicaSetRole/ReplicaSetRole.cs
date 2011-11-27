@@ -201,12 +201,14 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         {
             var mongoAppRoot = Path.Combine(
                 Environment.GetEnvironmentVariable("RoleRoot") + @"\",
-                Settings.MongoBinaryFolder);
+                Settings.MongoDBBinaryFolder);
             var mongodPath = Path.Combine(mongoAppRoot, @"mongod.exe");
 
             var blobPath = GetMongoDataDirectory();
 
             var logFile = GetLogFile();
+
+            var logLevel = Settings.MongodLogLevel;
 
             string cmdline;
             if (RoleEnvironment.IsEmulated)
@@ -215,7 +217,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
                     mongodPort,
                     blobPath,
                     logFile,
-                    replicaSetName);
+                    replicaSetName,
+                    logLevel);
             }
             else
             {
@@ -223,7 +226,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
                     mongodPort,
                     blobPath,
                     logFile,
-                    replicaSetName);
+                    replicaSetName,
+                    logLevel);
             }
 
             DiagnosticsHelper.TraceInformation(string.Format("Launching mongod as {0} {1}", mongodPath, cmdline));
@@ -255,8 +259,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
             var dataBlobName = string.Format(Settings.MongodDataBlobName, instanceId);
             var containerName = string.Format(Settings.MongodDataBlobContainerName, replicaSetName);
             mongodDataDriveLetter = Utilities.GetMountedPathFromBlob(
-                Settings.MongoLocalDataDir,
-                Settings.MongoCloudDataDir,
+                Settings.MongodLocalDataDir,
+                Settings.MongodCloudDataDir,
                 containerName,
                 dataBlobName,
                 Settings.MaxDBDriveSize,
@@ -270,22 +274,8 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         private string GetLogFile()
         {
             DiagnosticsHelper.TraceInformation("Getting log file base path");
-            var logBlobName = string.Format(Settings.MongodLogBlobName, instanceId);
-            var containerName = string.Format(Settings.MongodLogBlobContainerName, replicaSetName);
-            var path = Utilities.GetMountedPathFromBlob(
-                Settings.MongoLocalLogDir,
-                Settings.MongoCloudLogDir,
-                containerName,
-                logBlobName,
-                Settings.MaxLogDriveSize,
-                true,
-                mongoDataDrive,
-                mongodDataDriveLetter,
-                out mongoLogDrive
-                );
-            DiagnosticsHelper.TraceInformation(string.Format("Obtained log root directory as {0}", path));
-            var dir = Directory.CreateDirectory(Path.Combine(path, @"log"));
-            var logfile = Path.Combine(dir.FullName + @"\", Settings.MongoLogFileName);
+            var localStorage = RoleEnvironment.GetLocalResource(Settings.MongodLogDir);
+            var logfile = Path.Combine(localStorage.RootPath + @"\", Settings.MongodLogFileName);
             return logfile;
         }
 

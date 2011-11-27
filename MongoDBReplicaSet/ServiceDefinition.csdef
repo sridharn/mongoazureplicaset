@@ -9,14 +9,13 @@
     <ConfigurationSettings>
       <Setting name="MongoDBDataDir" />
       <Setting name="ReplicaSetName" />
-      <Setting name="MongoDBLogDir" />
       <Setting name="MongoDBDataDirSize" />
-      <Setting name="MongoDBLogDirSize" />
       <Setting name="DiagnosticsConnectionString" />
+      <Setting name="MongoDBLogVerbosity" />
     </ConfigurationSettings>
     <LocalResources>
       <LocalStorage name="MongoDBLocalDataDir" cleanOnRoleRecycle="false" sizeInMB="1024" />
-      <LocalStorage name="MongoDBLocalLogDir" cleanOnRoleRecycle="false" sizeInMB="1024" />
+      <LocalStorage name="MongodLogDir" cleanOnRoleRecycle="false" sizeInMB="512" />
     </LocalResources>
   </WorkerRole>
   <WebRole name="MvcMovie" vmsize="Small">

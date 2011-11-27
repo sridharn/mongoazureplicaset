@@ -5,10 +5,9 @@
     <ConfigurationSettings>
       <Setting name="MongoDBDataDir" value="UseDevelopmentStorage=true" />
       <Setting name="ReplicaSetName" value="rs" />
-      <Setting name="MongoDBLogDir" value="UseDevelopmentStorage=true" />
       <Setting name="MongoDBDataDirSize" value="" />
-      <Setting name="MongoDBLogDirSize" value="" />
       <Setting name="DiagnosticsConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="MongoDBLogVerbosity" value="-v" />
     </ConfigurationSettings>
   </Role>
   <Role name="MvcMovie">

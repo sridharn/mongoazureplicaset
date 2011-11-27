@@ -20,6 +20,7 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
 {
 
     using System;
+    using System.Text.RegularExpressions;
 
     using Microsoft.WindowsAzure.ServiceRuntime;
 
@@ -28,33 +29,26 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         #region DO NOT MODIFY
         internal const string MongodDataBlobContainerName = "mongoddatadrive{0}";
         internal const string MongodDataBlobName = "mongoddblob{0}.vhd";
-        internal const string MongodLogBlobContainerName = "mongodlogdrive{0}";
-        internal const string MongodLogBlobName = "mongodlblob{0}.vhd";
 
-        internal const string MongoCloudDataDir = "MongoDBDataDir";
-        internal const string MongoCloudLogDir = "MongoDBLogDir";
-        internal const string MongoLocalDataDir = "MongoDBLocalDataDir";
-        internal const string MongoLocalLogDir = "MongoDBLocalLogDir";
-        internal const string MongoDataDirSize = "MongoDataDirSize";
-        internal const string MongoLogDirSize = "MongoLogDirSize";
+        internal const string MongodCloudDataDir = "MongoDBDataDir";
+        internal const string MongodDataDirSize = "MongoDataDirSize";
+        internal const string MongodLocalDataDir = "MongoDBLocalDataDir";
+        internal const string MongodLogDir = "MongodLogDir";
         internal const string DiagnosticsConnectionString = "DiagnosticsConnectionString";
+        internal const string MongoDBLogVerbosity = "MongoDBLogVerbosity";
 
-        internal const string MongoBinaryFolder = @"approot\MongoDBBinaries";
-        internal const string MongoLogFileName = "mongod.log";
-        internal const string MongodCommandLineCloud = "--port {0} --dbpath {1} --logpath {2} --nohttpinterface --logappend --replSet {3} ";
-        internal const string MongodCommandLineEmulated = "--port {0} --dbpath {1} --logpath {2} --replSet {3} ";
+        internal const string MongoDBBinaryFolder = @"approot\MongoDBBinaries";
+        internal const string MongodLogFileName = "mongod.log";
+        internal const string MongodCommandLineCloud = "--port {0} --dbpath {1} --logpath {2} --nohttpinterface --logappend --replSet {3} {4}";
+        internal const string MongodCommandLineEmulated = "--port {0} --dbpath {1} --logpath {2} --replSet {3} {4}";
 
         internal const string MongodDataBlobCacheDir = "MongodDataBlobCacheDir";
-        internal const string MongodLogBlobCacheDir = "MongodLogBlobCacheDir";
-
-        internal static readonly int MaxDBDriveSize; // in MB
-        internal static readonly int MaxLogDriveSize; // in MB
 
         // Default values for configurable settings
-        internal const int DefaultEmulatedDBDriveSize = 1024; // in MB
-        internal const int DefaultEmulatedLogDriveSize = 512; // in MB
-        internal const int DefaultDeployedDBDriveSize = 1024 * 1024; // in MB
-        internal const int DefaultDeployedLogDriveSize = 512 * 1024; // in MB
+        private const int DefaultEmulatedDBDriveSize = 1024; // in MB
+        private const int DefaultDeployedDBDriveSize = 100 * 1024; // in MB
+
+        private static readonly Regex logLevelRegex = new Regex("^(-?)([v]*)$");
 
         #endregion DO NOT MODIFY
 
@@ -63,25 +57,25 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
         internal static readonly TimeSpan PerfCounterTransferInterval = TimeSpan.FromMinutes(1);
         #endregion Configurable Section
 
+        internal static readonly int MaxDBDriveSize; // in MB
+        internal static string MongodLogLevel = "-v";
+
         static Settings()
         {
             int dbDriveSize;
-            int logDriveSize;
             if (RoleEnvironment.IsEmulated)
             {
                 dbDriveSize = DefaultEmulatedDBDriveSize;
-                logDriveSize = DefaultEmulatedLogDriveSize;
             }
             else
             {
                 dbDriveSize = DefaultDeployedDBDriveSize;
-                logDriveSize = DefaultDeployedLogDriveSize;
             }
 
             string mongoDataDirSize = null; 
             try 
             {
-                mongoDataDirSize = RoleEnvironment.GetConfigurationSettingValue(MongoDataDirSize);
+                mongoDataDirSize = RoleEnvironment.GetConfigurationSettingValue(MongodDataDirSize);
             }
             catch (RoleEnvironmentException)
             {
@@ -109,11 +103,10 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
                 MaxDBDriveSize = dbDriveSize;
             }
 
-
-            string mongoLogDirSize = null;
+            string configuredLogLevel = null;
             try
             {
-                mongoLogDirSize = RoleEnvironment.GetConfigurationSettingValue(MongoLogDirSize);
+                configuredLogLevel = RoleEnvironment.GetConfigurationSettingValue(Settings.MongoDBLogVerbosity);
             }
             catch (RoleEnvironmentException)
             {
@@ -124,23 +117,17 @@ namespace MongoDB.Azure.ReplicaSets.ReplicaSetRole
                 // setting does not exist?
             }
 
-            if (!string.IsNullOrEmpty(mongoLogDirSize))
+            if (!string.IsNullOrEmpty(configuredLogLevel))
             {
-                int parseLogDriveSize = 0;
-                if (int.TryParse(mongoLogDirSize, out parseLogDriveSize))
+                Match m = logLevelRegex.Match(configuredLogLevel);
+                if (m.Success)
                 {
-                    MaxLogDriveSize = parseLogDriveSize;
+                    MongodLogLevel = string.IsNullOrEmpty(m.Groups[1].ToString()) ?
+                        "-" + m.Groups[0].ToString() :
+                        m.Groups[0].ToString();
                 }
-                else
-                {
-                    MaxLogDriveSize = logDriveSize;
-                }
-            }
-            else
-            {
-                MaxLogDriveSize = logDriveSize;
-            }
 
+            }
         }
 
     }
