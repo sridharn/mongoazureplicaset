@@ -7,3 +7,5 @@ ServiceConfiguration.Cloud.cscfg
 csx
 *.cer
 *.pfx
+downloadtemp
+MongoDBBinaries
