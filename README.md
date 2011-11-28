@@ -16,7 +16,7 @@ Welcome to MongoDB replica sets on Azure
     * ReplicaSetRole - Worker role config for the actual MongoDB replica set role
                      
 ## INITIAL SETUP
-Run `powershell solutionsetup.ps1` to setup up the solution for building. This script only needs to be run the first time.
+Run `powershell .\solutionsetup.ps1` to setup up the solution for building. This script only needs to be run the first time.
 This script does the following
 
   * Create ServiceConfiguration.Cloud.cscfg as a copy of configfiles/ServiceConfiguration.Cloud.cscfg.ref
